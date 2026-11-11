@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FTC Scouting & Self-Assessment - BioBuzz</title>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --border-color: #cbd5e1;
+            --primary: #0f172a;
+            --primary-hover: #1e293b;
+            --accent: #0284c7;
+            --danger: #dc2626;
+            --success: #16a34a;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); line-height: 1.5; padding: 20px; }
+        
+        .container { max-width: 900px; margin: 0 auto; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 6px; padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        
+        h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; color: var(--text-main); }
+        p.subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
+        
+        .section-title { font-size: 16px; font-weight: 600; margin: 24px 0 12px 0; padding-bottom: 6px; border-bottom: 2px solid var(--border-color); color: var(--text-main); }
+        
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-weight: 500; font-size: 13px; margin-bottom: 6px; color: var(--text-main); }
+        input[type="text"], input[type="number"], select, textarea {
+            width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 14px; background: #fff;
+        }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
+        
+        .checkbox-grid { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 6px; }
+        @media(min-width: 600px) { .checkbox-grid { grid-template-columns: 1fr 1fr; } }
+        
+        .checkbox-label { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; font-weight: normal; cursor: pointer; }
+        .checkbox-label input { margin-top: 3px; }
+
+        .rule-box { background: #f1f5f9; border-left: 4px solid var(--primary); padding: 12px 16px; font-size: 13px; margin-bottom: 20px; border-radius: 0 4px 4px 0; }
+
+        button { background: var(--primary); color: white; border: none; padding: 12px 20px; font-size: 14px; font-weight: 600; border-radius: 4px; cursor: pointer; width: 100%; margin-top: 20px; }
+        button:hover { background: var(--primary-hover); }
+
+        .hidden { display: none !important; }
+        
+        .status-msg { margin-top: 12px; padding: 10px; text-align: center; font-size: 13px; border-radius: 4px; }
+        .status-success { background: #dcfce7; color: var(--success); }
+        .status-error { background: #fee2e2; color: var(--danger); }
+
+        canvas { border: 1px solid var(--border-color); background: #fff; width: 100%; max-width: 400px; height: 400px; display: block; margin: 10px 0; cursor: crosshair; }
+        .canvas-controls { display: flex; gap: 10px; margin-bottom: 10px; }
+        .canvas-controls button { width: auto; margin-top: 0; padding: 6px 12px; font-size: 12px; background: #e2e8f0; color: #0f172a; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- SELF ASSESSMENT VIEW (/self) -->
+        <div id="view-self" class="hidden">
+            <h1>FTC Team Self-Assessment</h1>
+            <p class="subtitle">Rampage Robotics #30824 - BioBuzz Season Pit Assessment</p>
+            
+            <form id="form-self">
+                <div class="form-group">
+                    <label>Team Number *</label>
+                    <input type="text" id="self-team-number" required placeholder="e.g. 20037">
+                </div>
+                <div class="form-group">
+                    <label>Team Name *</label>
+                    <input type="text" id="self-team-name" required placeholder="e.g. Standard Deviation">
+                </div>
+                <div class="form-group">
+                    <label>Primary Pit Contact & Role</label>
+                    <input type="text" id="self-contact" placeholder="Name / Lead Builder / Driver">
+                </div>
+
+                <div class="section-title">Hardware & Drivetrain</div>
+                <div class="form-group">
+                    <label>Drivetrain Type</label>
+                    <select id="self-drivetrain">
+                        <option value="Swerve">Swerve</option>
+                        <option value="Mecanum">Mecanum</option>
+                        <option value="Tank / Traction">Tank / Traction</option>
+                        <option value="Omni">Omni</option>
+                        <option value="Custom">Custom</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Primary Intake & Transfer Mechanism</label>
+                    <select id="self-intake">
+                        <option value="Active Rollers">Active Rollers</option>
+                        <option value="Active Claw">Active Claw</option>
+                        <option value="Passive / Gravity">Passive / Gravity</option>
+                        <option value="Horizontal Extension">Horizontal Extension</option>
+                    </select>
+                </div>
+
+                <div class="section-title">Demonstrated Tournament Day Actions</div>
+                <p class="subtitle" style="margin-bottom: 8px;">Select actions your robot has demonstrated this tournament day:</p>
+                <div class="checkbox-grid">
+                    <label class="checkbox-label"><input type="checkbox" name="auto_actions" value="Leave start wall"> Leave the starting wall during AUTO</label>
+                    <label class="checkbox-label"><input type="checkbox" name="auto_actions" value="Park Loading Zone Auto"> Park in the LOADING ZONE during AUTO</label>
+                    <label class="checkbox-label"><input type="checkbox" name="auto_actions" value="Tip Hive Auto"> Tip a HIVE during AUTO</label>
+                    <label class="checkbox-label"><input type="checkbox" name="auto_actions" value="Collect Pollen and Nectar"> Collect both POLLEN and NECTAR</label>
+                    <label class="checkbox-label"><input type="checkbox" name="auto_actions" value="Tip Hive Teleop"> Tip a HIVE during TELEOP</label>
+                    <label class="checkbox-label"><input type="checkbox" name="auto_actions" value="Score Garden"> Score POLLEN or NECTAR in a GARDEN</label>
+                    <label class="checkbox-label"><input type="checkbox" name="auto_actions" value="Score Flower Ownership"> Score in a FLOWER and help claim ownership</label>
+                    <label class="checkbox-label"><input type="checkbox" name="auto_actions" value="Park Loading Zone Teleop"> Park in the LOADING ZONE during TELEOP</label>
+                </div>
+
+                <div class="rule-box" style="margin-top: 20px;">
+                    <strong>Rule Reminder:</strong> FLOWER scoring opens with 1:00 remaining. Ownership depends on the top-most NECTAR.
+                </div>
+
+                <div class="section-title">Autonomous & TeleOp Stats</div>
+                <div class="form-group">
+                    <label>Estimated Auto Point Contribution</label>
+                    <input type="text" id="self-auto-score" placeholder="e.g. 25-35 pts">
+                </div>
+                <div class="form-group">
+                    <label>Estimated Average TeleOp Cycle Count</label>
+                    <input type="text" id="self-cycle-count" placeholder="e.g. 6-8 cycles">
+                </div>
+
+                <button type="submit">Submit Self-Assessment</button>
+                <div id="self-status"></div>
+            </form>
+        </div>
+
+        <!-- SCOUT EVALUATION VIEW (/scout) -->
+        <div id="view-scout" class="hidden">
+            <h1>FTC Match Scout Evaluation</h1>
+            <p class="subtitle">Rampage Robotics #30824 - Internal Scouting Database</p>
+
+            <form id="form-scout">
+                <div class="form-group">
+                    <label>Match Number *</label>
+                    <input type="number" id="scout-match" required placeholder="e.g. 14">
+                </div>
+                <div class="form-group">
+                    <label>Alliance Color *</label>
+                    <select id="scout-alliance">
+                        <option value="Red">Red Alliance</option>
+                        <option value="Blue">Blue Alliance</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Team Number Being Scouted *</label>
+                    <input type="text" id="scout-team-number" required placeholder="e.g. 20037">
+                </div>
+                <div class="form-group">
+                    <label>Scouter Name *</label>
+                    <input type="text" id="scout-name" required placeholder="Your Name">
+                </div>
+
+                <div class="section-title">Autonomous Performance (Observed)</div>
+                <div class="checkbox-grid">
+                    <label class="checkbox-label"><input type="checkbox" name="scout_auto" value="Left wall"> Left Starting Wall</label>
+                    <label class="checkbox-label"><input type="checkbox" name="scout_auto" value="Parked Zone"> Parked in Loading Zone</label>
+                    <label class="checkbox-label"><input type="checkbox" name="scout_auto" value="Tipped Hive"> Tipped Hive</label>
+                    <label class="checkbox-label"><input type="checkbox" name="scout_auto" value="Preload Scored"> Pre-load Scored</label>
+                </div>
+
+                <div class="section-title">TeleOp Scoring & Agility</div>
+                <div class="form-group">
+                    <label>Garden Scores Count</label>
+                    <input type="number" id="scout-gardens" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label>Flower Ownership Scores Count</label>
+                    <input type="number" id="scout-flowers" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label>Hives Tipped Count</label>
+                    <input type="number" id="scout-hives" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label>Driver Agility & Defense Resistance</label>
+                    <select id="scout-agility">
+                        <option value="Fast & Agile">Fast & Agile (Hard to pin)</option>
+                        <option value="Moderate">Moderate</option>
+                        <option value="Slow / Pinned easily">Slow / Easily pinned by defense</option>
+                    </select>
+                </div>
+
+                <div class="section-title">Operational Issues Flagged</div>
+                <div class="checkbox-grid">
+                    <label class="checkbox-label"><input type="checkbox" name="scout_issues" value="Disconnect"> Control Disconnect</label>
+                    <label class="checkbox-label"><input type="checkbox" name="scout_issues" value="Intake Jam"> Intake Jam</label>
+                    <label class="checkbox-label"><input type="checkbox" name="scout_issues" value="Classifier Jam"> Classifier / Gate Failure</label>
+                    <label class="checkbox-label"><input type="checkbox" name="scout_issues" value="Mis-shots"> Mis-shots / Bounces</label>
+                    <label class="checkbox-label"><input type="checkbox" name="scout_issues" value="Mechanical Break"> Mechanical / Drivetrain Failure</label>
+                </div>
+
+                <div class="section-title">Field Auto Path Sketch (Optional)</div>
+                <div class="canvas-controls">
+                    <button type="button" id="clear-canvas">Clear Canvas</button>
+                </div>
+                <canvas id="field-canvas" width="400" height="400"></canvas>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label>Alliance Picklist Recommendation</label>
+                    <select id="scout-recommendation">
+                        <option value="1st Pick Candidate">1st Pick Candidate (Primary Scorer)</option>
+                        <option value="2nd Pick Candidate">2nd Pick Candidate (Support / Defense)</option>
+                        <option value="Do Not Pick">Do Not Pick (Unreliable / Low Output)</option>
+                    </select>
+                </div>
+
+                <button type="submit">Submit Scout Match Log</button>
+                <div id="scout-status"></div>
+            </form>
+        </div>
+
+        <!-- LANDING VIEW (If no hash specified) -->
+        <div id="view-home">
+            <h1>FTC Scouting Portal</h1>
+            <p class="subtitle">Rampage Robotics #30824</p>
+            <p style="margin-bottom: 20px; font-size: 14px;">Select the appropriate portal link below:</p>
+            <div style="display: flex; gap: 15px; flex-direction: column;">
+                <a href="#self" style="padding: 12px; background: #0f172a; color: white; text-align: center; border-radius: 4px; text-decoration: none; font-weight: 600;">Open Team Self-Assessment Form (/self)</a>
+                <a href="#scout" style="padding: 12px; background: #475569; color: white; text-align: center; border-radius: 4px; text-decoration: none; font-weight: 600;">Open Match Scout Evaluation Tool (/scout)</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Router logic
+        function router() {
+            const hash = window.location.hash;
+            document.getElementById('view-self').classList.add('hidden');
+            document.getElementById('view-scout').classList.add('hidden');
+            document.getElementById('view-home').classList.add('hidden');
+
+            if (hash === '#self') {
+                document.getElementById('view-self').classList.remove('hidden');
+            } else if (hash === '#scout') {
+                document.getElementById('view-scout').classList.remove('hidden');
+            } else {
+                document.getElementById('view-home').classList.remove('hidden');
+            }
+        }
+
+        window.addEventListener('hashchange', router);
+        window.addEventListener('load', router);
+
+        // Canvas drawing logic for scout view
+        const canvas = document.getElementById('field-canvas');
+        const ctx = canvas.getContext('2d');
+        let drawing = false;
+
+        function drawFieldBackground() {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = 1;
+            // Draw grid lines
+            for (let i = 0; i <= canvas.width; i += 50) {
+                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke();
+            }
+        }
+        drawFieldBackground();
+
+        document.getElementById('clear-canvas').addEventListener('click', () => {
+            drawFieldBackground();
+        });
+
+        canvas.addEventListener('mousedown', (e) => { drawing = true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY); });
+        canvas.addEventListener('mousemove', (e) => {
+            if (!drawing) return;
+            ctx.strokeStyle = '#dc2626';
+            ctx.lineWidth = 3;
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+        });
+        canvas.addEventListener('mouseup', () => { drawing = false; });
+
+        // Form submission handlers (Change endpoint URL here when Cloudflare Worker is connected)
+        const BACKEND_API_URL = "https://your-cloudflare-worker.your-subdomain.workers.dev/api/submit";
+
+        document.getElementById('form-self').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const statusDiv = document.getElementById('self-status');
+            statusDiv.className = 'status-msg';
+            statusDiv.innerText = 'Submitting...';
+
+            const checkboxes = document.querySelectorAll('input[name="auto_actions"]:checked');
+            const auto_actions = Array.from(checkboxes).map(cb => cb.value);
+
+            const payload = {
+                submission_type: 'self',
+                team_number: document.getElementById('self-team-number').value,
+                team_name: document.getElementById('self-team-name').value,
+                contact_info: document.getElementById('self-contact').value,
+                drivetrain: document.getElementById('self-drivetrain').value,
+                intake: document.getElementById('self-intake').value,
+                auto_actions: auto_actions,
+                teleop_data: {
+                    auto_score: document.getElementById('self-auto-score').value,
+                    cycle_count: document.getElementById('self-cycle-count').value
+                }
+            };
+
+            try {
+                // If worker URL is not configured yet, fallback to local storage backup
+                let savedLocally = false;
+                try {
+                    const res = await fetch(BACKEND_API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!res.ok) throw new Error('Network response was not ok');
+                } catch(err) {
+                    // Fallback local storage save so data is never lost
+                    const existing = JSON.parse(localStorage.getItem('ftc_submissions') || '[]');
+                    existing.push(payload);
+                    localStorage.setItem('ftc_submissions', JSON.stringify(existing));
+                    savedLocally = true;
+                }
+
+                statusDiv.className = 'status-msg status-success';
+                statusDiv.innerText = savedLocally ? 'Saved locally & queued! Thank you.' : 'Successfully submitted!';
+                document.getElementById('form-self').reset();
+            } catch (err) {
+                statusDiv.className = 'status-msg status-error';
+                statusDiv.innerText = 'Error submitting form. Please try again.';
+            }
+        });
+
+        document.getElementById('form-scout').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const statusDiv = document.getElementById('scout-status');
+            statusDiv.className = 'status-msg';
+            statusDiv.innerText = 'Submitting match log...';
+
+            const autoCheckboxes = document.querySelectorAll('input[name="scout_auto"]:checked');
+            const issueCheckboxes = document.querySelectorAll('input[name="scout_issues"]:checked');
+
+            const payload = {
+                submission_type: 'scout',
+                match_number: document.getElementById('scout-match').value,
+                alliance: document.getElementById('scout-alliance').value,
+                team_number: document.getElementById('scout-team-number').value,
+                scouter_name: document.getElementById('scout-name').value,
+                auto_actions: Array.from(autoCheckboxes).map(cb => cb.value),
+                teleop_data: {
+                    gardens: document.getElementById('scout-gardens').value,
+                    flowers: document.getElementById('scout-flowers').value,
+                    hives: document.getElementById('scout-hives').value,
+                    agility: document.getElementById('scout-agility').value
+                },
+                issues: Array.from(issueCheckboxes).map(cb => cb.value),
+                recommendation: document.getElementById('scout-recommendation').value,
+                auto_path_data: canvas.toDataURL()
+            };
+
+            try {
+                let savedLocally = false;
+                try {
+                    const res = await fetch(BACKEND_API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!res.ok) throw new Error('Network response was not ok');
+                } catch (err) {
+                    const existing = JSON.parse(localStorage.getItem('ftc_submissions') || '[]');
+                    existing.push(payload);
+                    localStorage.setItem('ftc_submissions', JSON.stringify(existing));
+                    savedLocally = true;
+                }
+
+                statusDiv.className = 'status-msg status-success';
+                statusDiv.innerText = savedLocally ? 'Match log saved locally & queued!' : 'Match log submitted successfully!';
+                document.getElementById('form-scout').reset();
+                drawFieldBackground();
+            } catch (err) {
+                statusDiv.className = 'status-msg status-error';
+                statusDiv.innerText = 'Error saving match log.';
+            }
+        });
+    </script>
+</body>
+</html>
