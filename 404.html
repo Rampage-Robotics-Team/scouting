@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>FTC Scouting Redirect</title>
+    <script type="text/javascript">
+        // Single Page App redirect for GitHub Pages
+        var pathSegmentsToKeep = 1; // Adjust if hosted in a subfolder (e.g. repository name)
+        var l = window.location;
+        var pathname = l.pathname.split('/').slice(1 + pathSegmentsToKeep).join('/');
+        var hash = pathname ? '#' + pathname : '';
+        l.replace(
+            l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+            l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/' +
+            hash
+        );
+    </script>
+</head>
+<body>
+</body>
+</html>
