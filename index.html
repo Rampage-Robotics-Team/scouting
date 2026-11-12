@@ -282,7 +282,7 @@
         canvas.addEventListener('mouseup', () => { drawing = false; });
 
         // Form submission handlers (Change endpoint URL here when Cloudflare Worker is connected)
-        const BACKEND_API_URL = "https://scouting.oehlerking-w.workers.dev/";
+        const BACKEND_API_URL = "https://scouting.oehlerking-w.workers.dev/api/submit";
 
         document.getElementById('form-self').addEventListener('submit', async (e) => {
             e.preventDefault();
