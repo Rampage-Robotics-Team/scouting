@@ -30,16 +30,46 @@
         
         .form-group { margin-bottom: 16px; }
         label { display: block; font-weight: 500; font-size: 13px; margin-bottom: 6px; color: var(--text-main); }
-        input[type="text"], input[type="number"], select, textarea {
+        input[type="text"], input[type="number"], input[type="email"], select, textarea {
             width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 14px; background: #fff;
         }
         input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
         
-        .checkbox-grid { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 6px; }
+        .checkbox-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 6px; }
         @media(min-width: 600px) { .checkbox-grid { grid-template-columns: 1fr 1fr; } }
         
+        .action-item { display: flex; flex-direction: column; }
         .checkbox-label { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; font-weight: normal; cursor: pointer; }
         .checkbox-label input { margin-top: 3px; }
+
+        /* Compact indented clarifying input revealed only when checkbox is checked */
+        .clarify-box {
+            margin-top: 6px;
+            margin-left: 22px;
+            padding-left: 10px;
+            border-left: 2px solid var(--accent);
+        }
+        .clarify-box input[type="text"] {
+            padding: 6px 10px;
+            font-size: 12px;
+            background: #f8fafc;
+        }
+        .clarify-box input[type="text"]:focus {
+            background: #ffffff;
+        }
+
+        /* Opt-in box at bottom of #self */
+        .optin-card {
+            margin-top: 24px;
+            padding: 16px;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+        }
+        .optin-email-wrap {
+            margin-top: 12px;
+            margin-left: 22px;
+        }
 
         .rule-box { background: #f1f5f9; border-left: 4px solid var(--primary); padding: 12px 16px; font-size: 13px; margin-bottom: 20px; border-radius: 0 4px 4px 0; }
 
@@ -52,7 +82,7 @@
         .status-success { background: #dcfce7; color: var(--success); }
         .status-error { background: #fee2e2; color: var(--danger); }
 
-        canvas { border: 1px solid var(--border-color); background: #fff; width: 100%; max-width: 400px; height: 400px; display: block; margin: 10px 0; cursor: crosshair; }
+        canvas { border: 1px solid var(--border-color); background: #fff; width: 100%; max-width: 400px; height: 400px; display: block; margin: 10px 0; cursor: crosshair; touch-action: none; }
         .canvas-controls { display: flex; gap: 10px; margin-bottom: 10px; }
         .canvas-controls button { width: auto; margin-top: 0; padding: 6px 12px; font-size: 12px; background: #e2e8f0; color: #0f172a; }
     </style>
@@ -103,14 +133,85 @@
                 <div class="section-title">Demonstrated Tournament Day Actions</div>
                 <p class="subtitle" style="margin-bottom: 8px;">Select actions your robot has demonstrated this tournament day:</p>
                 <div class="checkbox-grid">
-                    <label class="checkbox-label"><input type="checkbox" name="auto_actions" value="Leave start wall"> Leave the starting wall during AUTO</label>
-                    <label class="checkbox-label"><input type="checkbox" name="auto_actions" value="Park Loading Zone Auto"> Park in the LOADING ZONE during AUTO</label>
-                    <label class="checkbox-label"><input type="checkbox" name="auto_actions" value="Tip Hive Auto"> Tip a HIVE during AUTO</label>
-                    <label class="checkbox-label"><input type="checkbox" name="auto_actions" value="Collect Pollen and Nectar"> Collect both POLLEN and NECTAR</label>
-                    <label class="checkbox-label"><input type="checkbox" name="auto_actions" value="Tip Hive Teleop"> Tip a HIVE during TELEOP</label>
-                    <label class="checkbox-label"><input type="checkbox" name="auto_actions" value="Score Garden"> Score POLLEN or NECTAR in a GARDEN</label>
-                    <label class="checkbox-label"><input type="checkbox" name="auto_actions" value="Score Flower Ownership"> Score in a FLOWER and help claim ownership</label>
-                    <label class="checkbox-label"><input type="checkbox" name="auto_actions" value="Park Loading Zone Teleop"> Park in the LOADING ZONE during TELEOP</label>
+                    <div class="action-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="auto_actions" value="Leave start wall" data-clarify-id="clarify-self-leave">
+                            Leave the starting wall during AUTO
+                        </label>
+                        <div id="clarify-self-leave" class="clarify-box hidden">
+                            <input type="text" placeholder="Where / which starting side?">
+                        </div>
+                    </div>
+
+                    <div class="action-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="auto_actions" value="Park Loading Zone Auto" data-clarify-id="clarify-self-park-auto">
+                            Park in the LOADING ZONE during AUTO
+                        </label>
+                        <div id="clarify-self-park-auto" class="clarify-box hidden">
+                            <input type="text" placeholder="Which Loading Zone / where?">
+                        </div>
+                    </div>
+
+                    <div class="action-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="auto_actions" value="Tip Hive Auto" data-clarify-id="clarify-self-hive-auto">
+                            Tip a HIVE during AUTO
+                        </label>
+                        <div id="clarify-self-hive-auto" class="clarify-box hidden">
+                            <input type="text" placeholder="How many Hives / which one?">
+                        </div>
+                    </div>
+
+                    <div class="action-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="auto_actions" value="Collect Pollen and Nectar" data-clarify-id="clarify-self-collect">
+                            Collect both POLLEN and NECTAR
+                        </label>
+                        <div id="clarify-self-collect" class="clarify-box hidden">
+                            <input type="text" placeholder="Intake speed or capacity notes?">
+                        </div>
+                    </div>
+
+                    <div class="action-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="auto_actions" value="Tip Hive Teleop" data-clarify-id="clarify-self-hive-teleop">
+                            Tip a HIVE during TELEOP
+                        </label>
+                        <div id="clarify-self-hive-teleop" class="clarify-box hidden">
+                            <input type="text" placeholder="How many Hives typically?">
+                        </div>
+                    </div>
+
+                    <div class="action-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="auto_actions" value="Score Garden" data-clarify-id="clarify-self-garden">
+                            Score POLLEN or NECTAR in a GARDEN
+                        </label>
+                        <div id="clarify-self-garden" class="clarify-box hidden">
+                            <input type="text" placeholder="Approx. how many per match?">
+                        </div>
+                    </div>
+
+                    <div class="action-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="auto_actions" value="Score Flower Ownership" data-clarify-id="clarify-self-flower">
+                            Score in a FLOWER and help claim ownership
+                        </label>
+                        <div id="clarify-self-flower" class="clarify-box hidden">
+                            <input type="text" placeholder="How many Flowers / top Nectar strategy?">
+                        </div>
+                    </div>
+
+                    <div class="action-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="auto_actions" value="Park Loading Zone Teleop" data-clarify-id="clarify-self-park-teleop">
+                            Park in the LOADING ZONE during TELEOP
+                        </label>
+                        <div id="clarify-self-park-teleop" class="clarify-box hidden">
+                            <input type="text" placeholder="Which Loading Zone / time needed?">
+                        </div>
+                    </div>
                 </div>
 
                 <div class="rule-box" style="margin-top: 20px;">
@@ -125,6 +226,18 @@
                 <div class="form-group">
                     <label>Estimated Average TeleOp Cycle Count</label>
                     <input type="text" id="self-cycle-count" placeholder="e.g. 6-8 cycles">
+                </div>
+
+                <!-- E-Scouting Setup Guide Opt-In -->
+                <div class="optin-card">
+                    <label class="checkbox-label" style="font-weight: 500;">
+                        <input type="checkbox" id="self-create-form-check">
+                        I would like to create an E-Scouting form like this
+                    </label>
+                    <div id="self-create-form-email-wrap" class="optin-email-wrap hidden">
+                        <label for="self-create-form-email" style="font-size: 12px; color: var(--text-muted);">Contact Email</label>
+                        <input type="email" id="self-create-form-email" placeholder="Enter your team or personal email so we can send the setup guide">
+                    </div>
                 </div>
 
                 <button type="submit">Submit Self-Assessment</button>
@@ -160,10 +273,45 @@
 
                 <div class="section-title">Autonomous Performance (Observed)</div>
                 <div class="checkbox-grid">
-                    <label class="checkbox-label"><input type="checkbox" name="scout_auto" value="Left wall"> Left Starting Wall</label>
-                    <label class="checkbox-label"><input type="checkbox" name="scout_auto" value="Parked Zone"> Parked in Loading Zone</label>
-                    <label class="checkbox-label"><input type="checkbox" name="scout_auto" value="Tipped Hive"> Tipped Hive</label>
-                    <label class="checkbox-label"><input type="checkbox" name="scout_auto" value="Preload Scored"> Pre-load Scored</label>
+                    <div class="action-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="scout_auto" value="Left wall" data-clarify-id="clarify-scout-wall">
+                            Left Starting Wall
+                        </label>
+                        <div id="clarify-scout-wall" class="clarify-box hidden">
+                            <input type="text" placeholder="Where / which side?">
+                        </div>
+                    </div>
+
+                    <div class="action-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="scout_auto" value="Parked Zone" data-clarify-id="clarify-scout-park">
+                            Parked in Loading Zone
+                        </label>
+                        <div id="clarify-scout-park" class="clarify-box hidden">
+                            <input type="text" placeholder="Which zone / full or partial?">
+                        </div>
+                    </div>
+
+                    <div class="action-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="scout_auto" value="Tipped Hive" data-clarify-id="clarify-scout-hive">
+                            Tipped Hive
+                        </label>
+                        <div id="clarify-scout-hive" class="clarify-box hidden">
+                            <input type="text" placeholder="How many Hives?">
+                        </div>
+                    </div>
+
+                    <div class="action-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="scout_auto" value="Preload Scored" data-clarify-id="clarify-scout-preload">
+                            Pre-load Scored
+                        </label>
+                        <div id="clarify-scout-preload" class="clarify-box hidden">
+                            <input type="text" placeholder="Where scored (Garden/Flower)?">
+                        </div>
+                    </div>
                 </div>
 
                 <div class="section-title">TeleOp Scoring & Agility</div>
@@ -249,7 +397,71 @@
         window.addEventListener('hashchange', router);
         window.addEventListener('load', router);
 
-        // Canvas drawing logic for scout view
+        // Dynamic toggle logic for clarifying short text boxes
+        document.querySelectorAll('input[type="checkbox"][data-clarify-id]').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                const container = document.getElementById(checkbox.dataset.clarifyId);
+                if (!container) return;
+                const input = container.querySelector('input');
+
+                if (checkbox.checked) {
+                    container.classList.remove('hidden');
+                    if (input) input.focus();
+                } else {
+                    container.classList.add('hidden');
+                    if (input) input.value = '';
+                }
+            });
+        });
+
+        // Dynamic toggle for "I would like to create an E-Scouting form like this" checkbox
+        const createFormCheck = document.getElementById('self-create-form-check');
+        const createFormWrap = document.getElementById('self-create-form-email-wrap');
+        const createFormEmail = document.getElementById('self-create-form-email');
+
+        createFormCheck.addEventListener('change', () => {
+            if (createFormCheck.checked) {
+                createFormWrap.classList.remove('hidden');
+                createFormEmail.required = true;
+                createFormEmail.focus();
+            } else {
+                createFormWrap.classList.add('hidden');
+                createFormEmail.required = false;
+                createFormEmail.value = '';
+            }
+        });
+
+        // Helper to reset all conditional UI boxes on form reset
+        function resetConditionalInputs(formElement) {
+            formElement.querySelectorAll('.clarify-box').forEach(box => {
+                box.classList.add('hidden');
+                const inp = box.querySelector('input');
+                if (inp) inp.value = '';
+            });
+            if (formElement.id === 'form-self') {
+                createFormWrap.classList.add('hidden');
+                createFormEmail.required = false;
+                createFormEmail.value = '';
+            }
+        }
+
+        // Helper to collect checked actions with any non-empty clarifying text appended
+        function collectActionsWithClarifications(checkboxSelector) {
+            const checkedBoxes = document.querySelectorAll(checkboxSelector);
+            return Array.from(checkedBoxes).map(cb => {
+                const clarifyId = cb.dataset.clarifyId;
+                if (clarifyId) {
+                    const clarifyInput = document.querySelector(`#${clarifyId} input`);
+                    const detail = clarifyInput ? clarifyInput.value.trim() : '';
+                    if (detail) {
+                        return `${cb.value} (${detail})`;
+                    }
+                }
+                return cb.value;
+            });
+        }
+
+        // Canvas drawing logic for scout view (Mouse + Touch support)
         const canvas = document.getElementById('field-canvas');
         const ctx = canvas.getContext('2d');
         let drawing = false;
@@ -259,7 +471,6 @@
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.strokeStyle = '#cbd5e1';
             ctx.lineWidth = 1;
-            // Draw grid lines
             for (let i = 0; i <= canvas.width; i += 50) {
                 ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
                 ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke();
@@ -271,17 +482,50 @@
             drawFieldBackground();
         });
 
-        canvas.addEventListener('mousedown', (e) => { drawing = true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY); });
-        canvas.addEventListener('mousemove', (e) => {
+        function getCanvasCoords(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY
+            };
+        }
+
+        function startDrawing(e) {
+            drawing = true;
+            const pos = getCanvasCoords(e);
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+        }
+
+        function drawMove(e) {
             if (!drawing) return;
+            if (e.touches) e.preventDefault();
+            const pos = getCanvasCoords(e);
             ctx.strokeStyle = '#dc2626';
             ctx.lineWidth = 3;
-            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.lineCap = 'round';
+            ctx.lineTo(pos.x, pos.y);
             ctx.stroke();
-        });
-        canvas.addEventListener('mouseup', () => { drawing = false; });
+        }
 
-        // Form submission handlers (Change endpoint URL here when Cloudflare Worker is connected)
+        function stopDrawing() {
+            drawing = false;
+        }
+
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', drawMove);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseleave', stopDrawing);
+
+        canvas.addEventListener('touchstart', startDrawing, { passive: false });
+        canvas.addEventListener('touchmove', drawMove, { passive: false });
+        canvas.addEventListener('touchend', stopDrawing);
+
+        // Backend Cloudflare Worker endpoint
         const BACKEND_API_URL = "https://scouting.oehlerking-w.workers.dev/api/submit";
 
         document.getElementById('form-self').addEventListener('submit', async (e) => {
@@ -290,8 +534,13 @@
             statusDiv.className = 'status-msg';
             statusDiv.innerText = 'Submitting...';
 
-            const checkboxes = document.querySelectorAll('input[name="auto_actions"]:checked');
-            const auto_actions = Array.from(checkboxes).map(cb => cb.value);
+            const auto_actions = collectActionsWithClarifications('input[name="auto_actions"]:checked');
+            const wantsForm = createFormCheck.checked;
+            const optInEmail = createFormEmail.value.trim();
+
+            const notesText = wantsForm && optInEmail
+                ? `Wants E-Scouting setup guide: ${optInEmail}`
+                : '';
 
             const payload = {
                 submission_type: 'self',
@@ -304,11 +553,11 @@
                 teleop_data: {
                     auto_score: document.getElementById('self-auto-score').value,
                     cycle_count: document.getElementById('self-cycle-count').value
-                }
+                },
+                notes: notesText
             };
 
             try {
-                // If worker URL is not configured yet, fallback to local storage backup
                 let savedLocally = false;
                 try {
                     const res = await fetch(BACKEND_API_URL, {
@@ -318,7 +567,6 @@
                     });
                     if (!res.ok) throw new Error('Network response was not ok');
                 } catch(err) {
-                    // Fallback local storage save so data is never lost
                     const existing = JSON.parse(localStorage.getItem('ftc_submissions') || '[]');
                     existing.push(payload);
                     localStorage.setItem('ftc_submissions', JSON.stringify(existing));
@@ -327,7 +575,9 @@
 
                 statusDiv.className = 'status-msg status-success';
                 statusDiv.innerText = savedLocally ? 'Saved locally & queued! Thank you.' : 'Successfully submitted!';
-                document.getElementById('form-self').reset();
+                const formSelf = document.getElementById('form-self');
+                formSelf.reset();
+                resetConditionalInputs(formSelf);
             } catch (err) {
                 statusDiv.className = 'status-msg status-error';
                 statusDiv.innerText = 'Error submitting form. Please try again.';
@@ -340,7 +590,7 @@
             statusDiv.className = 'status-msg';
             statusDiv.innerText = 'Submitting match log...';
 
-            const autoCheckboxes = document.querySelectorAll('input[name="scout_auto"]:checked');
+            const scoutAutoActions = collectActionsWithClarifications('input[name="scout_auto"]:checked');
             const issueCheckboxes = document.querySelectorAll('input[name="scout_issues"]:checked');
 
             const payload = {
@@ -349,7 +599,7 @@
                 alliance: document.getElementById('scout-alliance').value,
                 team_number: document.getElementById('scout-team-number').value,
                 scouter_name: document.getElementById('scout-name').value,
-                auto_actions: Array.from(autoCheckboxes).map(cb => cb.value),
+                auto_actions: scoutAutoActions,
                 teleop_data: {
                     gardens: document.getElementById('scout-gardens').value,
                     flowers: document.getElementById('scout-flowers').value,
@@ -379,7 +629,9 @@
 
                 statusDiv.className = 'status-msg status-success';
                 statusDiv.innerText = savedLocally ? 'Match log saved locally & queued!' : 'Match log submitted successfully!';
-                document.getElementById('form-scout').reset();
+                const formScout = document.getElementById('form-scout');
+                formScout.reset();
+                resetConditionalInputs(formScout);
                 drawFieldBackground();
             } catch (err) {
                 statusDiv.className = 'status-msg status-error';
